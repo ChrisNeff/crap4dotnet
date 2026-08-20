@@ -51,4 +51,33 @@ public class SourceScopeFilterTests
         Assert.Single(r);
         Assert.Equal("/repo/src/Foo.cs", r[0].FileName);
     }
+
+    // Decoy fixture: near-miss paths that a naive substring/Contains/EndsWith
+    // matcher would wrongly match. The contiguous whole-segment matcher must reject them.
+    private static readonly IReadOnlyList<MethodCoverage> DecoyMethods =
+    [
+        M("/repo/src/Foo.cs"),   // the only true match for src/Foo.cs and src
+        M("othersrc/Foo.cs"),    // segment-prefix collision: "othersrc" != "src"
+        M("src/Foo.cs.bak"),     // segment-suffix collision: "foo.cs.bak" != "foo.cs"
+        M("othersrc/Baz.cs"),    // directory near-miss for "src"
+    ];
+
+    [Fact]
+    public void File_target_rejects_partial_segment_near_misses()
+    {
+        var r = SourceScopeFilter.Apply(DecoyMethods, ["src/Foo.cs"], null);
+        Assert.Single(r);
+        Assert.Equal("/repo/src/Foo.cs", r[0].FileName);
+        Assert.DoesNotContain(r, m => m.FileName == "othersrc/Foo.cs");
+        Assert.DoesNotContain(r, m => m.FileName == "src/Foo.cs.bak");
+    }
+
+    [Fact]
+    public void Directory_target_rejects_substring_segment_near_miss()
+    {
+        var r = SourceScopeFilter.Apply(DecoyMethods, ["src"], null);
+        Assert.All(r, m => Assert.DoesNotContain("othersrc", m.FileName));
+        Assert.DoesNotContain(r, m => m.FileName == "othersrc/Foo.cs");
+        Assert.DoesNotContain(r, m => m.FileName == "othersrc/Baz.cs");
+    }
 }
