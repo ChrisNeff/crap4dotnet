@@ -8,4 +8,16 @@ public static class CrapCalculator
         double cc = complexity;
         return cc * cc * Math.Pow(1.0 - c, 3.0) + cc;
     }
+
+    public static MethodCrap Score(MethodCoverage m, double threshold)
+    {
+        if (m.Complexity is int cc && m.LineRate is double cov)
+        {
+            double crap = Crap(cc, cov);
+            return new MethodCrap(m.TypeName, m.MethodName, m.Signature, m.FileName,
+                cc, cov, crap, crap > threshold);
+        }
+        return new MethodCrap(m.TypeName, m.MethodName, m.Signature, m.FileName,
+            m.Complexity, m.LineRate, null, false);
+    }
 }

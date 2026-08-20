@@ -20,4 +20,26 @@ public class CrapCalculatorTests
     {
         Assert.Equal(CrapCalculator.Crap(4, clampedCov), CrapCalculator.Crap(4, cov), precision: 6);
     }
+
+    [Fact]
+    public void Score_computes_crap_and_flags_over_threshold()
+    {
+        var m = new MethodCoverage("Ns.Foo", "Bar", "(System.Int32)", "src/Foo.cs", 0.5, 5);
+        var s = CrapCalculator.Score(m, threshold: 8.0);
+        Assert.Equal(8.125, s.Crap!.Value, precision: 3);
+        Assert.True(s.IsCrappy);
+        Assert.Equal(5, s.Cc);
+        Assert.Equal(0.5, s.Coverage);
+    }
+
+    [Fact]
+    public void Score_returns_na_when_complexity_or_coverage_missing()
+    {
+        var noCc = CrapCalculator.Score(new MethodCoverage("T", "M", "()", "f.cs", 0.5, null), 8.0);
+        var noCov = CrapCalculator.Score(new MethodCoverage("T", "M", "()", "f.cs", null, 5), 8.0);
+        Assert.Null(noCc.Crap);
+        Assert.False(noCc.IsCrappy);
+        Assert.Null(noCov.Crap);
+        Assert.False(noCov.IsCrappy);
+    }
 }
