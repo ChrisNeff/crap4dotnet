@@ -4,6 +4,7 @@ namespace Crap4Dotnet.Tests;
 public class ProgramEndToEndTests
 {
     private static string Fixture => Path.Combine(AppContext.BaseDirectory, "fixtures", "sample.cobertura.xml");
+    private static string MalformedFixture => Path.Combine(AppContext.BaseDirectory, "fixtures", "malformed.cobertura.xml");
 
     [Fact]
     public void Coverage_path_scores_fixture_and_exits_two_when_over_threshold()
@@ -16,6 +17,16 @@ public class ProgramEndToEndTests
         Assert.Equal(ExitCodes.ThresholdExceeded, code);
         Assert.Contains("MyAssembly.Foo.Bar", outw.ToString());
         Assert.Contains("over 8.0", outw.ToString());
+    }
+
+    [Fact]
+    public void Malformed_coverage_file_is_caught_as_error_not_thrown()
+    {
+        var errw = new StringWriter();
+        int code = Program.Run(["--coverage", MalformedFixture], new StringWriter(), errw);
+
+        Assert.Equal(ExitCodes.Error, code);
+        Assert.Contains("failed to parse", errw.ToString());
     }
 
     [Fact]

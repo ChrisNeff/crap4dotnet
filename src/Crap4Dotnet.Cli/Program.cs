@@ -29,49 +29,57 @@ public static class Program
 
         string cwd = Directory.GetCurrentDirectory();
 
-        IReadOnlyList<string> files;
-        if (opts.CoverageFile is not null)
+        try
         {
-            if (!File.Exists(opts.CoverageFile))
+            IReadOnlyList<string> files;
+            if (opts.CoverageFile is not null)
             {
-                errw.WriteLine($"coverage file not found: {opts.CoverageFile}");
-                return ExitCodes.Error;
+                if (!File.Exists(opts.CoverageFile))
+                {
+                    errw.WriteLine($"coverage file not found: {opts.CoverageFile}");
+                    return ExitCodes.Error;
+                }
+                files = [opts.CoverageFile];
             }
-            files = [opts.CoverageFile];
+            else
+            {
+                var run = DotnetTestRunner.Run(cwd);
+                if (run.ExitCode != 0)
+                {
+                    errw.WriteLine(run.StdErr.Length > 0 ? run.StdErr : "dotnet test failed");
+                    return ExitCodes.Error;
+                }
+                files = CoberturaLocator.Locate(run.ResultsDir);
+                if (files.Count == 0) { errw.WriteLine("no coverage produced"); return ExitCodes.Error; }
+            }
+
+            var parsed = new List<MethodCoverage>();
+            foreach (var f in files)
+            {
+                try
+                {
+                    using var s = File.OpenRead(f);
+                    parsed.AddRange(CoberturaParser.Parse(s));
+                }
+                catch (Exception ex)
+                {
+                    errw.WriteLine($"failed to parse {f}: {ex.Message}");
+                    return ExitCodes.Error;
+                }
+            }
+
+            var merged = CoverageMerger.Merge(parsed);
+            var changed = opts.Changed ? GitChangedFilesProvider.GetChangedFiles(cwd) : null;
+            var scoped = SourceScopeFilter.Apply(merged, opts.Targets, changed);
+            var report = CrapReport.Build(scoped, Threshold);
+
+            outw.Write(TextReportRenderer.Render(report));
+            return report.OverThreshold > 0 ? ExitCodes.ThresholdExceeded : ExitCodes.Ok;
         }
-        else
+        catch (Exception ex)
         {
-            var run = DotnetTestRunner.Run(cwd);
-            if (run.ExitCode != 0)
-            {
-                errw.WriteLine(run.StdErr.Length > 0 ? run.StdErr : "dotnet test failed");
-                return ExitCodes.Error;
-            }
-            files = CoberturaLocator.Locate(run.ResultsDir);
-            if (files.Count == 0) { errw.WriteLine("no coverage produced"); return ExitCodes.Error; }
+            errw.WriteLine(ex.Message);
+            return ExitCodes.Error;
         }
-
-        var parsed = new List<MethodCoverage>();
-        foreach (var f in files)
-        {
-            try
-            {
-                using var s = File.OpenRead(f);
-                parsed.AddRange(CoberturaParser.Parse(s));
-            }
-            catch (Exception ex)
-            {
-                errw.WriteLine($"failed to parse {f}: {ex.Message}");
-                return ExitCodes.Error;
-            }
-        }
-
-        var merged = CoverageMerger.Merge(parsed);
-        var changed = opts.Changed ? GitChangedFilesProvider.GetChangedFiles(cwd) : null;
-        var scoped = SourceScopeFilter.Apply(merged, opts.Targets, changed);
-        var report = CrapReport.Build(scoped, Threshold);
-
-        outw.Write(TextReportRenderer.Render(report));
-        return report.OverThreshold > 0 ? ExitCodes.ThresholdExceeded : ExitCodes.Ok;
     }
 }
