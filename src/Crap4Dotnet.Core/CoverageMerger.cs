@@ -11,6 +11,6 @@ public static class CoverageMerger
                 g.Key.Signature,
                 g.First().FileName,
                 g.Max(x => x.LineRate),
-                g.Select(x => x.Complexity).FirstOrDefault(x => x is not null) ?? g.First().Complexity))
+                g.Select(x => x.Complexity).FirstOrDefault(x => x is not null)))
             .ToList();
 }

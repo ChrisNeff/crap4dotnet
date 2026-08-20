@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="0.5" branch-rate="0.5" version="1.9" complexity="12">
+  <sources><source>/repo/</source></sources>
+  <packages>
+    <package name="MyAssembly" line-rate="0.5" branch-rate="0.5" complexity="12">
+      <classes>
+        <class name="MyAssembly.Foo" filename="src/Foo.cs" line-rate="0.4" branch-rate="0.5" complexity="7">
+          <methods>
+            <method name="Bar" signature="(System.Int32)" line-rate="0.5" branch-rate="0.5" complexity="5">
+              <lines><line number="10" hits="0" branch="false" /></lines>
+            </method>
+</coverage>
