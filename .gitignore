@@ -1,2 +1,7 @@
 
 .superpowers/
+bin/
+obj/
+artifacts/
+*.user
+.vs/
