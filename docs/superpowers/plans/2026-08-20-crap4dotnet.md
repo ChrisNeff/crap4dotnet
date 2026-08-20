@@ -1467,7 +1467,7 @@ clean:
     dotnet clean crap4dotnet.sln
 ```
 
-- [ ] **Step 2: Write `README.md`** (CRAP explanation, install via `just install`, usage table mirroring `--help`, exit codes, attribution to crap4j).
+- [ ] **Step 2: Verify/refine `README.md`** — a README already exists at the repo root (purpose, formula, install, usage, exit codes, credits). Confirm it matches the final `--help` text and `just` recipes; update only if they drifted. Do **not** overwrite wholesale.
 
 - [ ] **Step 3: Verify recipes**
 
