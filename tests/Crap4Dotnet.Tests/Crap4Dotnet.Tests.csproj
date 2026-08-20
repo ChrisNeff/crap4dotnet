@@ -24,4 +24,8 @@
     <ProjectReference Include="..\..\src\Crap4Dotnet.Core\Crap4Dotnet.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="fixtures/**/*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
