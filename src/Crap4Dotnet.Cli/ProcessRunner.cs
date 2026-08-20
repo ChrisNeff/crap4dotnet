@@ -16,9 +16,11 @@ public static class ProcessRunner
             UseShellExecute = false,
         };
         using var p = Process.Start(psi)!;
-        string stdout = p.StandardOutput.ReadToEnd();
-        string stderr = p.StandardError.ReadToEnd();
+        Task<string> stdoutTask = p.StandardOutput.ReadToEndAsync();
+        Task<string> stderrTask = p.StandardError.ReadToEndAsync();
         p.WaitForExit();
+        string stdout = stdoutTask.GetAwaiter().GetResult();
+        string stderr = stderrTask.GetAwaiter().GetResult();
         return new ProcessResult(p.ExitCode, stdout, stderr);
     }
 }
