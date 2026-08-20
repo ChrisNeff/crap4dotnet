@@ -1,0 +1,6 @@
+crap4dotnet is a .NET port of the CRAP metric popularized by crap4j
+(https://github.com/unclebob/crap4java) by Robert C. Martin.
+
+The CRAP (Change Risk Anti-Patterns) metric originates with Alberto Savoia
+and Bob Evans. crap4dotnet implements the published algorithm independently;
+it contains no code from crap4j.
