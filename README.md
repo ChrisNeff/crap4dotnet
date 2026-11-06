@@ -23,7 +23,9 @@ so the two numbers can never be attributed to different methods.
 
 ## Status
 
-🚧 Under construction — see [`docs/superpowers/specs`](docs/superpowers/specs)
+v1 is implemented: a full crap4j-parity CLI with `--changed`, path targets,
+`--coverage`, and exit codes 0/1/2 — installable locally via `just install`.
+Public NuGet publishing is planned. See [`docs/superpowers/specs`](docs/superpowers/specs)
 for the design and [`docs/superpowers/plans`](docs/superpowers/plans) for the
 implementation plan.
 
