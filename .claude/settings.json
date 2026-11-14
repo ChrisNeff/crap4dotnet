@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "dotnet-skills": {
+      "source": {
+        "source": "github",
+        "repo": "Aaronontheweb/dotnet-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "dotnet-skills@dotnet-skills": true
+  }
+}
